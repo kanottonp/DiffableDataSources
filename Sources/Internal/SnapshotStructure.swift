@@ -19,7 +19,7 @@ struct SnapshotStructure<SectionID: Hashable, ItemID: Hashable> {
         }
 
         func isContentEqual(to source: Item) -> Bool {
-            return !isReloaded && differenceIdentifier == source.differenceIdentifier
+            return !isReloaded && itemId == source.itemId
         }
     }
 
