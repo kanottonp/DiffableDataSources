@@ -3,11 +3,14 @@ import DifferenceKit
 
 struct SnapshotStructure<SectionID: Hashable, ItemID: Hashable> {
     struct Item: Differentiable, Equatable {
-        var differenceIdentifier: ItemID
+        var differenceIdentifier: Int {
+            return itemId.hashValue
+        }
+        var itemId: ItemID
         var isReloaded: Bool
 
         init(id: ItemID, isReloaded: Bool) {
-            self.differenceIdentifier = id
+            self.itemId = id
             self.isReloaded = isReloaded
         }
 
@@ -53,7 +56,7 @@ struct SnapshotStructure<SectionID: Hashable, ItemID: Hashable> {
     var allItemIDs: [ItemID] {
         return sections.lazy
             .flatMap { $0.elements }
-            .map { $0.differenceIdentifier }
+            .map { $0.itemId }
     }
 
     func items(in sectionID: SectionID, file: StaticString = #file, line: UInt = #line) -> [ItemID] {
@@ -61,7 +64,7 @@ struct SnapshotStructure<SectionID: Hashable, ItemID: Hashable> {
             specifiedSectionIsNotFound(sectionID, file: file, line: line)
         }
 
-        return sections[sectionIndex].elements.map { $0.differenceIdentifier }
+        return sections[sectionIndex].elements.map { $0.itemId }
     }
 
     func section(containing itemID: ItemID) -> SectionID? {
@@ -270,7 +273,7 @@ private extension SnapshotStructure {
     func itemPositionMap() -> [ItemID: ItemPosition] {
         return sections.enumerated().reduce(into: [:]) { result, section in
             for (itemRelativeIndex, item) in section.element.elements.enumerated() {
-                result[item.differenceIdentifier] = ItemPosition(
+                result[item.itemId] = ItemPosition(
                     item: item,
                     itemRelativeIndex: itemRelativeIndex,
                     section: section.element,
